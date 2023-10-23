@@ -16,6 +16,9 @@ def load_csv(filename):
 
     # if ticker is missing replace with Sedol
     df['Symbol'] = df.apply(
+        lambda row: 'AV.' if str(row.Sedol) == '216238' else row.Symbol, axis=1)
+
+    df['Symbol'] = df.apply(
         lambda row: "SEDOL:" + str(row.Sedol) if str(row.Symbol) == 'nan' else row.Symbol, axis=1)
 
     df['Credit'] = df['Credit'].replace('[£,n/a]', '', regex=True).astype(float)
@@ -45,6 +48,17 @@ def sum_by_year(df, title=None):
         print (f"\n\n{title}:")
     print(totals)
 
+def sum_by_symbol_and_year(df, title=None):
+    totals = df.groupby(['Symbol', df['Datetime'].dt.year] ).agg({'Debit' : 'sum', 'Credit': 'sum'})
+    if title is not None:
+        print (f"\n\n{title}:")
+    print(totals)
+
+def sum_by_symbol(df, title=None):
+    totals = df.groupby('Symbol').agg({'Debit' : 'sum', 'Credit': 'sum'})
+    if title is not None:
+        print (f"\n\n{title}:")
+    print(totals)
 
 def main(argc, argv):
     app_name = os.path.basename(sys.argv[0])
@@ -63,6 +77,8 @@ def main(argc, argv):
     # my divs each year...
     sum_by_year(interest, "Interest")
     sum_by_year(divs, "Divs")
+    sum_by_symbol_and_year(divs, "Divs by Symbol and Year")
+    sum_by_symbol(divs, 'Divs by Symbol')
 
     sum_by_year(cash, "Cash")
 
