@@ -64,7 +64,7 @@ def sum_by_symbol_and_year(df, title=None, include_qty=False):
 
 def sum_by_symbol(df, title=None, include_qty=False):
     if include_qty:
-        totals = df.groupby('Symbol').agg(Qty=('Quantity', sum), Buy_Debit=('Debit', 'sum'), Sell_Credit=('Credit', 'sum'))
+        totals = df.groupby('Symbol').agg(Qty=('Quantity', 'sum'), Buy_Debit=('Debit', 'sum'), Sell_Credit=('Credit', 'sum'))
     else:
         # totals = df.groupby('Symbol').agg({'Debit' : 'sum', 'Credit': 'sum'})
         totals = df.groupby('Symbol').agg(Buy_Debit=('Debit', 'sum'), Sell_Credit=('Credit', 'sum'))
