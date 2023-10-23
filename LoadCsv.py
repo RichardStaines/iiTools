@@ -11,18 +11,22 @@ def load_csv(filename):
 
     print(df.columns)
     df['type'] = df.apply(
-        lambda row: 'Interest' if row.Description.startswith('GROSS INTEREST') else 'Cash' if row.Description=='SUBSCRIPTION' else 'Div' if row.Description.startswith('Div') else 'Trade',
+        lambda row: 'Interest' if row.Description.startswith('GROSS INTEREST') else 'Cash' if row.Description=='SUBSCRIPTION' or row.Description=='Carried forward cash balance' else 'Div' if row.Description.startswith('Div') else 'Trade',
         axis=1)
 
     # if ticker is missing replace with Sedol
     df['Symbol'] = df.apply(
-        lambda row: 'AV.' if str(row.Sedol) == '216238' else row.Symbol, axis=1)
+        lambda row: 'AV.' if str(row.Sedol) == '216238' else 'BHP' if str(row.Sedol) == 'BH0P3Z9' else row.Symbol, axis=1)
 
     df['Symbol'] = df.apply(
         lambda row: "SEDOL:" + str(row.Sedol) if str(row.Symbol) == 'nan' else row.Symbol, axis=1)
 
     df['Credit'] = df['Credit'].replace('[£,n/a]', '', regex=True).astype(float)
     df['Debit'] = df['Debit'].replace('[£,n/a]', '', regex=True).astype(float)
+
+    # make the Qty negative for Sells
+    df['Quantity'] = df.apply(
+        lambda row: -row.Quantity if row.Credit > 0 else row.Quantity, axis=1)
 
     df['Datetime'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce')
     print(df.info)
@@ -43,19 +47,28 @@ def load_csv(filename):
 
 
 def sum_by_year(df, title=None):
-    totals = df.groupby(df['Datetime'].dt.year).agg({'Debit' : 'sum', 'Credit': 'sum'})
+    # totals = df.groupby(df['Datetime'].dt.year).agg({'Debit' : 'sum', 'Credit': 'sum'})
+    totals = df.groupby(df['Datetime'].dt.year).agg(Buy_Debit=('Debit' , 'sum'), Sell_Credit=('Credit', 'sum') )
     if title is not None:
         print (f"\n\n{title}:")
     print(totals)
 
-def sum_by_symbol_and_year(df, title=None):
-    totals = df.groupby(['Symbol', df['Datetime'].dt.year] ).agg({'Debit' : 'sum', 'Credit': 'sum'})
+def sum_by_symbol_and_year(df, title=None, include_qty=False):
+    if include_qty:
+        totals = df.groupby(['Symbol', df['Datetime'].dt.year] ).agg(Qty=('Quantity', sum), Buy_debit=('Debit', 'sum'), Sell_credit=('Credit', 'sum'))
+    else:
+        totals = df.groupby(['Symbol', df['Datetime'].dt.year] ).agg(Buy_debit=('Debit', 'sum'), Sell_credit=('Credit', 'sum'))
     if title is not None:
         print (f"\n\n{title}:")
     print(totals)
 
-def sum_by_symbol(df, title=None):
-    totals = df.groupby('Symbol').agg({'Debit' : 'sum', 'Credit': 'sum'})
+def sum_by_symbol(df, title=None, include_qty=False):
+    if include_qty:
+        totals = df.groupby('Symbol').agg(Qty=('Quantity', sum), Buy_Debit=('Debit', 'sum'), Sell_Credit=('Credit', 'sum'))
+    else:
+        # totals = df.groupby('Symbol').agg({'Debit' : 'sum', 'Credit': 'sum'})
+        totals = df.groupby('Symbol').agg(Buy_Debit=('Debit', 'sum'), Sell_Credit=('Credit', 'sum'))
+
     if title is not None:
         print (f"\n\n{title}:")
     print(totals)
@@ -83,9 +96,9 @@ def main(argc, argv):
     sum_by_year(cash, "Cash")
 
     # my trading activity
-
-    # sum_by_year(trades, "Trades")
-
+    # The Qty doesnt always make sense as the csv file has no starting positions and nothing before 2021
+    sum_by_symbol(trades, "Trades", include_qty=True)
+    sum_by_symbol_and_year(trades, "Trades", include_qty=True)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
