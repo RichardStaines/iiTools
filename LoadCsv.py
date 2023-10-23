@@ -94,7 +94,8 @@ def main(argc, argv):
 
     # my divs each year...
     sum_by_year(interest, "Interest")
-    sum_by_year(divs, "Divs")
+
+    sum_by_year(divs, "Divs by Year")
     sum_by_symbol_and_year(divs, "Divs by Symbol and Year")
     sum_by_symbol(divs, 'Divs by Symbol')
 
@@ -102,8 +103,8 @@ def main(argc, argv):
 
     # my trading activity
     # The Qty doesnt always make sense as the csv file has no starting positions and nothing before 2021
-    sum_by_symbol(trades, "Trades", include_qty=True)
-    sum_by_symbol_and_year(trades, "Trades", include_qty=True)
+    sum_by_symbol(trades, "Trades by Symbol", include_qty=True)
+    sum_by_symbol_and_year(trades, "Trades by Symbol and Year", include_qty=True)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
