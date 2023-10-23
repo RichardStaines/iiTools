@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import timeit
 
-sedol_map = {'B6T5S47': 'POLY',
+sedol_map = {'B6T5S47': 'POLYMETAL',
              'BH0P3Z9': 'BHP',
              '216238': 'AV.',
-             'B68SFJ1': 'Hend Trust',
+             'B68SFJ1': 'Hend High Inc',
              'BDR8FC4': 'IND REIT'
              }
 def load_csv(filename):
