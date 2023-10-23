@@ -5,7 +5,12 @@ import numpy as np
 import pandas as pd
 import timeit
 
-
+sedol_map = {'B6T5S47': 'POLY',
+             'BH0P3Z9': 'BHP',
+             '216238': 'AV.',
+             'B68SFJ1': 'Hend Trust',
+             'BDR8FC4': 'IND REIT'
+             }
 def load_csv(filename):
     df = pd.read_csv(filename, keep_default_na=True)
 
@@ -16,7 +21,7 @@ def load_csv(filename):
 
     # if ticker is missing replace with Sedol
     df['Symbol'] = df.apply(
-        lambda row: 'AV.' if str(row.Sedol) == '216238' else 'BHP' if str(row.Sedol) == 'BH0P3Z9' else row.Symbol, axis=1)
+        lambda row: sedol_map[row.Sedol] if str(row.Sedol) in sedol_map else row.Symbol, axis=1)
 
     df['Symbol'] = df.apply(
         lambda row: "SEDOL:" + str(row.Sedol) if str(row.Symbol) == 'nan' else row.Symbol, axis=1)
@@ -55,7 +60,7 @@ def sum_by_year(df, title=None):
 
 def sum_by_symbol_and_year(df, title=None, include_qty=False):
     if include_qty:
-        totals = df.groupby(['Symbol', df['Datetime'].dt.year] ).agg(Qty=('Quantity', sum), Buy_debit=('Debit', 'sum'), Sell_credit=('Credit', 'sum'))
+        totals = df.groupby(['Symbol', df['Datetime'].dt.year] ).agg(Qty=('Quantity', 'sum'), Buy_debit=('Debit', 'sum'), Sell_credit=('Credit', 'sum'))
     else:
         totals = df.groupby(['Symbol', df['Datetime'].dt.year] ).agg(Buy_debit=('Debit', 'sum'), Sell_credit=('Credit', 'sum'))
     if title is not None:
