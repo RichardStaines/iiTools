@@ -11,6 +11,7 @@ load in trades.
 Calc PnL on a trade level and position level.
 See dividend aggregations at position level.
 
+Where to get prices from for evaluation? TBD 
 
 That's the plan at least...
 
