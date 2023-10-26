@@ -13,3 +13,9 @@ class Cash(Base):
     created_on = Column(DateTime(), default=datetime.now())
     updated_on = Column(DateTime(), default=datetime.now(), onupdate=datetime.now)
 
+    def __repr__(self):
+        return (f"Cash {self.id} type={self.type} "
+                f"description={self.description} a"
+                f"mount={self.amount} "
+                f"date={self.date} "
+                f"created_on={self.created_on} updated_on={self.updated_on}\n")

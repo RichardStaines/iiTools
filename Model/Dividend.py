@@ -14,4 +14,7 @@ class Dividend(Base):
     created_on = Column(DateTime(), default=datetime.now())
     updated_on = Column(DateTime(), default=datetime.now(), onupdate=datetime.now)
 
-
+    def __repr__(self):
+        return (f"Dividend {self.id} instrument={self.instrument} sedol={self.sedol} "
+                f"description={self.description} amount={self.amount} trade_date={self.trade_date} "
+                f"created_on={self.created_on} updated_on={self.updated_on}\n")

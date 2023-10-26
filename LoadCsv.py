@@ -1,6 +1,10 @@
 import sys
 import os
 
+#from Model import db
+#from Model.Dividend import *
+from Model.db import *
+
 import numpy as np
 import pandas as pd
 import timeit
@@ -15,7 +19,11 @@ def load_csv(filename):
     df = pd.read_csv(filename, keep_default_na=True)
 
     print(df.columns)
-    df['type'] = df.apply(
+
+    df['Description'] = df.apply(lambda row: 'Div' if 'Cash Distrib' in row.Description else row.Description,
+        axis=1)
+
+    df['Type'] = df.apply(
         lambda row: 'Interest' if row.Description.startswith('GROSS INTEREST') else 'Cash' if row.Description=='SUBSCRIPTION' or row.Description=='Carried forward cash balance' else 'Div' if row.Description.startswith('Div') else 'Trade',
         axis=1)
 
@@ -28,10 +36,14 @@ def load_csv(filename):
 
     df['Credit'] = df['Credit'].replace('[£,n/a]', '', regex=True).astype(float)
     df['Debit'] = df['Debit'].replace('[£,n/a]', '', regex=True).astype(float)
+    df['Price'] = df['Price'].replace('[£,n/a]', '', regex=True).astype(float)
 
     # make the Qty negative for Sells
-    df['Quantity'] = df.apply(
-        lambda row: -row.Quantity if row.Credit > 0 else row.Quantity, axis=1)
+    df['BuySell'] = df.apply(
+        lambda row: 'S' if row.Credit > 0 else r'B', axis=1)
+
+    df['Consideration'] = df.apply(
+        lambda row: row.Credit if row.Credit > 0 else row.Debit, axis=1)
 
     df['Datetime'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce')
     print(df.info)
@@ -39,44 +51,58 @@ def load_csv(filename):
     divs = df.loc[df['Description'].str.startswith('Div')]
     print(f"Divs\n {divs.info}")
 
-    interest = df.query('type == "Interest"')
+    interest = df.query('Type == "Interest"')
     print(f"Interest\n {interest.info}")
 
-    trades = df.query('type == "Trade"')
+    trades = df.query('Type == "Trade"')
     print(f"\nTrades\n {trades.info}")
 
-    cash = df.query('type == "Cash"')
+    cash = df.query('Type == "Cash"')
     print(f"\nCash\n {cash.info}")
 
     return interest, divs, trades, cash
 
 
-def sum_by_year(df, title=None):
-    # totals = df.groupby(df['Datetime'].dt.year).agg({'Debit' : 'sum', 'Credit': 'sum'})
-    totals = df.groupby(df['Datetime'].dt.year).agg(Buy_Debit=('Debit' , 'sum'), Sell_Credit=('Credit', 'sum') )
-    if title is not None:
-        print (f"\n\n{title}:")
-    print(totals)
+def save_divs_from_df(divs):
+    rec_list = [Dividend(instrument=div.Symbol,
+                         sedol=div.Sedol,
+                         description=div.Description,
+                         amount=div.Credit,
+                         trade_date=div.Datetime
+                         ) for div in divs.itertuples()]
+    print(rec_list)
 
-def sum_by_symbol_and_year(df, title=None, include_qty=False):
-    if include_qty:
-        totals = df.groupby(['Symbol', df['Datetime'].dt.year] ).agg(Qty=('Quantity', 'sum'), Buy_debit=('Debit', 'sum'), Sell_credit=('Credit', 'sum'))
-    else:
-        totals = df.groupby(['Symbol', df['Datetime'].dt.year] ).agg(Buy_debit=('Debit', 'sum'), Sell_credit=('Credit', 'sum'))
-    if title is not None:
-        print (f"\n\n{title}:")
-    print(totals)
+    session.bulk_save_objects(rec_list)
+    session.commit()
 
-def sum_by_symbol(df, title=None, include_qty=False):
-    if include_qty:
-        totals = df.groupby('Symbol').agg(Qty=('Quantity', 'sum'), Buy_Debit=('Debit', 'sum'), Sell_Credit=('Credit', 'sum'))
-    else:
-        # totals = df.groupby('Symbol').agg({'Debit' : 'sum', 'Credit': 'sum'})
-        totals = df.groupby('Symbol').agg(Buy_Debit=('Debit', 'sum'), Sell_Credit=('Credit', 'sum'))
 
-    if title is not None:
-        print (f"\n\n{title}:")
-    print(totals)
+def save_cash_from_df(df):
+    rec_list = [Cash(type=row.Type,
+                     description=row.Description,
+                     amount=row.Credit,
+                     date=row.Datetime
+                     ) for row in df.itertuples()]
+    print(rec_list)
+    session.bulk_save_objects(rec_list)
+    session.commit()
+
+
+def save_trades_from_df(df):
+    rec_list = [Trade(instrument=trd.Symbol,
+                      sedol=trd.Sedol,
+                      instrument_description=trd.Description,
+                      buy_sell=trd.BuySell,
+                      quantity=trd.Quantity,
+                      price=trd.Price,
+                      net_consideration=trd.Consideration,
+                      trade_date=trd.Datetime
+                      ) for trd in df.itertuples()]
+    print(rec_list)
+
+    session.bulk_save_objects(rec_list)
+    session.commit()
+
+
 
 def main(argc, argv):
     app_name = os.path.basename(sys.argv[0])
@@ -92,19 +118,11 @@ def main(argc, argv):
     print(f"{app_name} args {argc} Load file: {filename}")
     interest, divs, trades, cash = load_csv(filename)
 
-    # my divs each year...
-    sum_by_year(interest, "Interest")
+    save_divs_from_df(divs)
+    save_cash_from_df(cash)
+    save_cash_from_df(interest)
+    save_trades_from_df(trades)
 
-    sum_by_year(divs, "Divs by Year")
-    sum_by_symbol_and_year(divs, "Divs by Symbol and Year")
-    sum_by_symbol(divs, 'Divs by Symbol')
-
-    sum_by_year(cash, "Cash")
-
-    # my trading activity
-    # The Qty doesnt always make sense as the csv file has no starting positions and nothing before 2021
-    sum_by_symbol(trades, "Trades by Symbol", include_qty=True)
-    sum_by_symbol_and_year(trades, "Trades by Symbol and Year", include_qty=True)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

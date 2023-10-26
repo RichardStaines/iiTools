@@ -15,6 +15,10 @@ def load_csv(filename):
     df = pd.read_csv(filename, keep_default_na=True)
 
     print(df.columns)
+
+    df['Description'] = df.apply(lambda row: 'Div' if 'Cash Distrib' in row.Description else row.Description,
+        axis=1)
+
     df['type'] = df.apply(
         lambda row: 'Interest' if row.Description.startswith('GROSS INTEREST') else 'Cash' if row.Description=='SUBSCRIPTION' or row.Description=='Carried forward cash balance' else 'Div' if row.Description.startswith('Div') else 'Trade',
         axis=1)
