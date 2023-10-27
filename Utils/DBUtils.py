@@ -7,6 +7,12 @@ class DBUtil:
         self.session = session
         self.debug = debug
 
+    def clear_tables(self):
+        session.query(Cash).delete()
+        session.query(Dividend).delete()
+        session.query(Trade).delete()
+        self.session.commit()
+
     def save_divs_from_df(self, df, portfolio):
 
         rec_list = [Dividend(instrument=div.Symbol,
@@ -22,7 +28,6 @@ class DBUtil:
         self.session.bulk_save_objects(rec_list)
         self.session.commit()
 
-
     def save_cash_from_df(self, df, portfolio):
         rec_list = [Cash(type=row.Type,
                          description=row.Description,
@@ -34,7 +39,6 @@ class DBUtil:
             print(rec_list)
         self.session.bulk_save_objects(rec_list)
         self.session.commit()
-
 
     def save_trades_from_df(self, df, portfolio):
         rec_list = [Trade(instrument=trd.Symbol,

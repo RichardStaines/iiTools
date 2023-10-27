@@ -9,14 +9,18 @@ from Model.db import *
 
 def process_commandline():
     parser = argparse.ArgumentParser(
-        usage="%(prog)s -p <portfolio> <II-csv-filename>"
+        usage="%(prog)s [-reload] -p <portfolio> <II-csv-filename>\n-reload will empty the tables before loading"
     )
     parser.add_argument(
         "-p", "--portfolio", default=''
     )
+    parser.add_argument(
+        "-reload", action=argparse.BooleanOptionalAction
+    )
     parser.add_argument("filename")  # positional parameter so mandatory
     args = parser.parse_args()
-    # print(args)
+    print(args)
+
     return args
 
 
@@ -29,6 +33,11 @@ def main(argc, argv):
     ii_csv = IICsv(args.filename, debug=False)
 
     dbutil = DBUtil(session, debug=True)
+
+    if args.reload:
+        print("Reload Request")
+        dbutil.clear_tables()
+
     dbutil.save_divs_from_df(ii_csv.get_dividends(), args.portfolio)
     dbutil.save_cash_from_df(ii_csv.get_cash(), args.portfolio)
     dbutil.save_cash_from_df(ii_csv.get_interest(), args.portfolio)
