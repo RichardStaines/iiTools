@@ -1,5 +1,5 @@
 from datetime import datetime
-from Log import Log
+from Utils.Log import Log
 
 
 class TimeUtils:
@@ -31,3 +31,15 @@ class TimeUtils:
                 is_within = True
         Log.print('L1', module, 'Within is {}'.format(is_within))
         return is_within
+
+    @staticmethod
+    def is_this_year(dt):
+        module = 'is_this_year'
+        now = datetime.now()
+        return now.year == dt.year
+
+    @staticmethod
+    def is_last_year(dt):
+        module = 'is_this_year'
+        now = datetime.now()
+        return dt.year == (now.year - 1)

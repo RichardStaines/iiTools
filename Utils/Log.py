@@ -3,6 +3,7 @@ from datetime import datetime
 import logging
 import sys
 
+
 class Log:
 
     filename = ''
@@ -12,16 +13,31 @@ class Log:
     @staticmethod
     def create(config):
         module = 'Log.create'
-        logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-        logging.debug(os.getcwd())
+        #logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+        #logging.debug(os.getcwd())
 
         Log.filename = config['Log']['Filename']
         Log.levels = config['Log']['Level'].split(',')
 
+        Log.create(config['Log']['Filename'], config['Log']['Level'])
+        #Log.file_pointer = open(Log.filename, "w+")
+        #Log.print('INFO', module, 'Logging levels: {}'.format(Log.levels))
+        #Log.print('INFO', module, 'Current Working Directory: {}'.format(os.getcwd()))
+        Log.print('INFO', module, 'Config Sections: {}'.format(config.sections()))
+
+    @staticmethod
+    def create(log_filename, levels_str):
+        module = 'Log.create'
+        logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+        logging.debug(os.getcwd())
+
+        Log.filename = log_filename
+        Log.levels = levels_str.split(',')
+
         Log.file_pointer = open(Log.filename, "w+")
         Log.print('INFO', module, 'Logging levels: {}'.format(Log.levels))
         Log.print('INFO', module, 'Current Working Directory: {}'.format(os.getcwd()))
-        Log.print('INFO', module, 'Config Sections: {}'.format(config.sections()))
+
 
     @staticmethod
     def print(level, module, *msg):
