@@ -38,10 +38,13 @@ def main(argc, argv):
         print("Reload Request")
         dbutil.clear_tables()
 
+    print(f"Instruments={ii_csv.get_instruments()}")
+
     dbutil.save_divs_from_df(ii_csv.get_dividends(), args.portfolio)
     dbutil.save_cash_from_df(ii_csv.get_cash(), args.portfolio)
     dbutil.save_cash_from_df(ii_csv.get_interest(), args.portfolio)
     dbutil.save_trades_from_df(ii_csv.get_trades(), args.portfolio)
+    dbutil.save_instruments_from_df(ii_csv.get_instruments())
 
 
 # Press the green button in the gutter to run the script.

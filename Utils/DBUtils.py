@@ -11,6 +11,7 @@ class DBUtil:
         session.query(Cash).delete()
         session.query(Dividend).delete()
         session.query(Trade).delete()
+        session.query(Instrument).delete()
         self.session.commit()
 
     def save_divs_from_df(self, df, portfolio):
@@ -56,3 +57,15 @@ class DBUtil:
 
         session.bulk_save_objects(rec_list)
         session.commit()
+
+    def save_instruments_from_df(self, df):
+
+        rec_list = [Instrument(code=row.Symbol,
+                             sedol=row.Sedol,
+                             description=row.Description,
+                             ) for row in df.itertuples()]
+        if self.debug:
+            print(rec_list)
+
+        self.session.bulk_save_objects(rec_list)
+        self.session.commit()

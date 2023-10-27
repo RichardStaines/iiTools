@@ -17,8 +17,7 @@ def main(argc, argv):
 
     print(f"{app_name} - Analyse file: {filename}")
 
-    ii_csv = IICsv(filename, debug=True)
-    # interest, divs, trades, cash = load_csv(filename)
+    ii_csv = IICsv(filename, debug=False)
 
     # my divs each year...
     IICsv.sum_by_year(ii_csv.get_interest(), "Interest")

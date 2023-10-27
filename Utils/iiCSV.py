@@ -13,7 +13,7 @@ class IICsv():
 
     def __init__(self, filename, debug=False):
         self.filename = filename
-        self.debug = False
+        self.debug = debug
         self.load_csv()
 
     def load_csv(self):
@@ -63,6 +63,14 @@ class IICsv():
         if self.debug:
             print(f"\nTrades\n {self.trades.info}")
 
+        self.instruments = self.trades.drop_duplicates(subset=['Symbol']).drop(
+            ['Date', 'Settlement Date', 'Quantity', 'Price', 'Reference',
+             'Debit', 'Credit', 'Running Balance',
+             'BuySell', 'Type', 'Consideration', 'Datetime'],
+            axis=1)
+        if self.debug:
+            print(f"\nUnique Instruments\n {self.instruments}")
+
         self.cash = df.query('Type == "Cash"')
         if self.debug:
             print(f"\nCash\n {self.cash.info}")
@@ -78,6 +86,9 @@ class IICsv():
 
     def get_trades(self):
         return self.trades
+
+    def get_instruments(self):
+        return self.instruments
 
     @staticmethod
     def sum_by_year(df, title=None):
