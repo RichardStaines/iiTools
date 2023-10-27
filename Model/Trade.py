@@ -15,6 +15,7 @@ class Trade(Base):
     net_consideration = Column(Numeric(12, 2))
     trade_date = Column(DateTime())
     settle_date = Column(DateTime())
+    portfolio = Column(String(20), unique=False, nullable=True)
     created_on = Column(DateTime(), default=datetime.now())
     updated_on = Column(DateTime(), default=datetime.now(), onupdate=datetime.now)
 

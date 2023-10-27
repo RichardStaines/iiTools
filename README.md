@@ -15,3 +15,5 @@ Where to get prices from for evaluation? TBD
 
 That's the plan at least...
 
+To create an empty DB: Run "alembic upgrade head" from a terminal
+

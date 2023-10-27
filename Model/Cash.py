@@ -9,7 +9,8 @@ class Cash(Base):
     type = Column(String(20))  # Deposit or Withdrawal or Interest or Initial
     description = Column(String(100), unique=False, nullable=True)
     amount = Column(Numeric(12, 2))
-    date = Column(DateTime())
+    payment_date = Column(DateTime(), nullable=False)
+    portfolio = Column(String(20), unique=False, nullable=True)
     created_on = Column(DateTime(), default=datetime.now())
     updated_on = Column(DateTime(), default=datetime.now(), onupdate=datetime.now)
 
@@ -17,5 +18,5 @@ class Cash(Base):
         return (f"Cash {self.id} type={self.type} "
                 f"description={self.description} a"
                 f"mount={self.amount} "
-                f"date={self.date} "
+                f"date={self.payment_date} "
                 f"created_on={self.created_on} updated_on={self.updated_on}\n")

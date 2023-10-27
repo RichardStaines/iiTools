@@ -3,19 +3,17 @@ from sqlalchemy import (Table, Column, Integer, Numeric, String, DateTime, Forei
 from .db import Base
 
 
-class Dividend(Base):
-    __tablename__ = 'dividend'
+class Instrument(Base):
+    __tablename__ = 'instrument'
     id = Column(Integer(), primary_key=True)
-    instrument = Column(String(10), unique=False, nullable=False)
+    code = Column(String(10), unique=False, nullable=False)
     sedol = Column(String(10), unique=False, nullable=True)
     description = Column(String(100), unique=False, nullable=True)
-    amount = Column(Numeric(12, 2), nullable=False)
-    payment_date = Column(DateTime(), nullable=False)
-    portfolio = Column(String(20), unique=False, nullable=True)
+    price_source = Column(String(20), unique=False, nullable=True)
     created_on = Column(DateTime(), default=datetime.now())
     updated_on = Column(DateTime(), default=datetime.now(), onupdate=datetime.now)
 
     def __repr__(self):
-        return (f"Dividend {self.id} instrument={self.instrument} sedol={self.sedol} "
-                f"description={self.description} amount={self.amount} payment_date={self.payment_date} "
+        return (f"Instrument {self.id} code={self.code} sedol={self.sedol} "
+                f"description={self.description} price_source={self.price_source} "
                 f"created_on={self.created_on} updated_on={self.updated_on}\n")
