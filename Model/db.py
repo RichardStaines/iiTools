@@ -12,6 +12,7 @@ from .Instrument import Instrument
 from .Cash import Cash
 from .Trade import Trade
 from .Dividend import Dividend
+from .Position import Position
 
 
 Base.metadata.create_all(engine)
