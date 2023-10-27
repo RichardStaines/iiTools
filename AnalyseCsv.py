@@ -15,7 +15,7 @@ def main(argc, argv):
         print(f"File: {filename} does not exist")
         exit(1)
 
-    print(f"{app_name} args {argc} Load file: {filename}")
+    print(f"{app_name} - Analyse file: {filename}")
 
     ii_csv = IICsv(filename, debug=True)
     # interest, divs, trades, cash = load_csv(filename)
