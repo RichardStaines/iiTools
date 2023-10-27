@@ -34,12 +34,10 @@ class TimeUtils:
 
     @staticmethod
     def is_this_year(dt):
-        module = 'is_this_year'
         now = datetime.now()
         return now.year == dt.year
 
     @staticmethod
     def is_last_year(dt):
-        module = 'is_this_year'
         now = datetime.now()
         return dt.year == (now.year - 1)
