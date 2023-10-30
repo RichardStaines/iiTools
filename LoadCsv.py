@@ -37,7 +37,7 @@ def main(argc, argv):
         print(f"portfolio:{args.portfolio} is not registered")
         exit(1)
 
-    ii_csv = IICsv(args.filename, debug=False)
+    ii_csv = IICsv(args.filename, debug=True)
 
     dbutil = DBUtil(session, debug=True)
 

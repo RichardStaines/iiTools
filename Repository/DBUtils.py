@@ -21,11 +21,10 @@ class DBUtil:
                              description=div.Description,
                              amount=div.Credit,
                              payment_date=div.Datetime,
-                             portfolio=portfolio
+                             portfolio_id=portfolio.id
                              ) for div in df.itertuples()]
         if self.debug:
             print(rec_list)
-
         self.session.bulk_save_objects(rec_list)
         self.session.commit()
 
@@ -34,7 +33,7 @@ class DBUtil:
                          description=row.Description,
                          amount=row.Credit,
                          payment_date=row.Datetime,
-                         portfolio=portfolio
+                         portfolio_id=portfolio.id
                          ) for row in df.itertuples()]
         if self.debug:
             print(rec_list)
@@ -50,7 +49,9 @@ class DBUtil:
                           price=trd.Price,
                           net_consideration=trd.Consideration,
                           trade_date=trd.Datetime,
-                          portfolio=portfolio
+                          reference=trd.Reference,
+                          settle_date=trd.SettleDate,
+                          portfolio_id=portfolio.id
                           ) for trd in df.itertuples()]
         if self.debug:
             print(rec_list)

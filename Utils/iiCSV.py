@@ -21,12 +21,13 @@ class IICsv():
         if self.debug:
             print(df.columns)
 
+        # df.columns = [c.replace(' ', '_') for c in df.columns] # remove spaces from column names
         df['Description'] = df.apply(lambda row: 'Div' if 'Cash Distrib' in row.Description else row.Description,
                                      axis=1)
         df['Type'] = df.apply(
-            lambda row: 'Interest' if row.Description.startswith(
-                'GROSS INTEREST') else 'Cash' if row.Description == 'SUBSCRIPTION' or row.Description == 'Carried forward cash balance' else 'Div' if row.Description.startswith(
-                'Div') else 'Trade',
+            lambda row: 'Interest' if row.Description.startswith('GROSS INTEREST')
+            else 'Cash' if row.Description == 'SUBSCRIPTION' or row.Description == 'Carried forward cash balance' or row.Description.startswith('PAYMENT')
+            else 'Div' if row.Description.startswith('Div') else 'Trade',
             axis=1)
 
         # if ticker is missing replace with Sedol
@@ -48,6 +49,7 @@ class IICsv():
             lambda row: row.Credit if row.Credit > 0 else row.Debit, axis=1)
 
         df['Datetime'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce')
+        df['SettleDate'] = pd.to_datetime(df['Settlement Date'], format='%d/%m/%Y', errors='coerce')
         if self.debug:
             print(df.info)
 
@@ -66,7 +68,7 @@ class IICsv():
         self.instruments = self.trades.drop_duplicates(subset=['Symbol']).drop(
             ['Date', 'Settlement Date', 'Quantity', 'Price', 'Reference',
              'Debit', 'Credit', 'Running Balance',
-             'BuySell', 'Type', 'Consideration', 'Datetime'],
+             'BuySell', 'Type', 'Consideration', 'Datetime', 'SettleDate'],
             axis=1)
         if self.debug:
             print(f"\nUnique Instruments\n {self.instruments}")
