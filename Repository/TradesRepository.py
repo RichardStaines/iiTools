@@ -1,32 +1,35 @@
-from Model.db import *
+from Model.db import Trade
 
 
-class DBUtil:
+class TradeRepository:
 
     def __init__(self, session, debug=True):
         self.session = session
         self.debug = debug
 
-    def clear_tables(self):
-        session.query(Dividend).delete()
-        session.query(Trade).delete()
+    def clear_table(self):
+        self.session.query(Trade).delete()
         self.session.commit()
 
-    def save_divs_from_df(self, df, portfolio):
+    def get_trade_list(self, year=None):
+        query = self.session.query(Trade)
 
-        rec_list = [Dividend(instrument=div.Symbol,
-                             sedol=div.Sedol,
-                             description=div.Description,
-                             amount=div.Credit,
-                             payment_date=div.Datetime,
-                             portfolio_id=portfolio.id
-                             ) for div in df.itertuples()]
-        if self.debug:
-            print(rec_list)
-        self.session.bulk_save_objects(rec_list)
+        if year is not None:
+            query.where(Trade.payment_date.year == year)
+        return query.all()
+
+    def get_trade(self, id):
+        return self.session.query(Trade).filter(Trade.id == id).first()
+
+    def update_dividend(self, id, updates_dict):
+        rec = self.session.query(Trade).filter(Trade.id == id).first()
+        for k,v in updates_dict:
+            rec[k] = v
         self.session.commit()
 
-    def save_trades_from_df(self, df, portfolio):
+    def save_from_df(self, df, portfolio, clear_before_load=False):
+        if clear_before_load:
+            self.clear_table()
         rec_list = [Trade(instrument=trd.Symbol,
                           sedol=trd.Sedol,
                           instrument_description=trd.Description,
@@ -41,6 +44,5 @@ class DBUtil:
                           ) for trd in df.itertuples()]
         if self.debug:
             print(rec_list)
-
-        session.bulk_save_objects(rec_list)
-        session.commit()
+        self.session.bulk_save_objects(rec_list)
+        self.session.commit()

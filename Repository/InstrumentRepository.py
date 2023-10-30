@@ -11,8 +11,11 @@ class InstrumentRepository:
         self.session.query(Instrument).delete()
         self.session.commit()
 
-    def get_instrument(self, code):
+    def get_instrument_by_code(self, code):
         return self.session.query(Instrument).filter(Instrument.code == code).first()
+
+    def get_instrument(self, id):
+        return self.session.query(Instrument).filter(Instrument.id == id).first()
 
     def get_instrument_list(self):
         return self.session.query(Instrument)

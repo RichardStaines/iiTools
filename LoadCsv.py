@@ -3,8 +3,9 @@ import os
 import argparse
 
 from Repository.CashRepository import CashRepository
+from Repository.DividendsRepsoitory import DividendRepository
+from Repository.TradesRepository import TradeRepository
 from Utils.iiCSV import IICsv
-from Repository.DBUtils import DBUtil
 from Model.db import *
 from Repository.PortfolioRepository import PortfolioRepository
 from Repository.InstrumentRepository import  InstrumentRepository
@@ -30,7 +31,7 @@ def main(argc, argv):
     app_name = os.path.basename(sys.argv[0])
 
     args = process_commandline()
-    print(f"{app_name} args {argc} Load file: {args.filename} portfolio:{args.portfolio}")
+    print(f"{app_name} args {argc} Load file: {args.filename} portfolio:{args.portfolio} reload:{args.reload}")
 
     portfolio_repo = PortfolioRepository(session, debug=True)
     portfolio = portfolio_repo.get_portfolio(args.portfolio)
@@ -42,20 +43,16 @@ def main(argc, argv):
 
     instRepo = InstrumentRepository(session, debug=False)
     cashRepo = CashRepository(session, debug=False)
-    dbutil = DBUtil(session, debug=True)
-
-    if args.reload:
-        print("Reload Request")
-        dbutil.clear_tables()
+    divRepo = DividendRepository(session, debug=False)
+    tradeRepo = TradeRepository(session, debug=False)
 
     print(f"Instruments={ii_csv.get_instruments()}")
     instRepo.save_from_df(ii_csv.get_instruments(), args.reload)
 
-    dbutil.save_divs_from_df(ii_csv.get_dividends(), portfolio)
+    divRepo.save_from_df(ii_csv.get_dividends(), portfolio, args.reload)
     cashRepo.save_from_df(ii_csv.get_cash(), portfolio, args.reload)
     cashRepo.save_from_df(ii_csv.get_interest(), portfolio, args.reload)
-    dbutil.save_trades_from_df(ii_csv.get_trades(), portfolio)
-
+    tradeRepo.save_from_df(ii_csv.get_trades(), portfolio, args.reload)
 
 
 # Press the green button in the gutter to run the script.

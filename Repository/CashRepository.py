@@ -11,15 +11,15 @@ class CashRepository:
         self.session.query(Cash).delete()
         self.session.commit()
 
-    def get_cash(self, year=None):
+    def get_cash_list(self, year=None):
         query = self.session.query(Cash)
 
         if year is not None:
             query.where(Cash.payment_date.year == year)
         return query.all()
 
-    def get_cash_all(self):
-        return self.session.query(Cash)
+    def get_cash(self, id):
+        return self.session.query(Cash).filter(Cash.id == id).first()
 
     def update_cash(self, id, updates_dict):
         rec = self.session.query(Cash).filter(Cash.id == id).first()
