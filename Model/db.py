@@ -8,11 +8,13 @@ engine = create_engine("sqlite:///database/trading.sqlite")
 
 Base = declarative_base()
 
+from .Portfolio import Portfolio
 from .Instrument import Instrument
 from .Cash import Cash
 from .Trade import Trade
 from .Dividend import Dividend
 from .Position import Position
+from .DividendSchedule import DividendSchedule
 
 
 Base.metadata.create_all(engine)
