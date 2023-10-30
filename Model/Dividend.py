@@ -1,5 +1,7 @@
 from datetime import datetime
 from sqlalchemy import (Table, Column, Integer, Numeric, String, DateTime, ForeignKey)
+from sqlalchemy.orm import relationship, backref
+
 from .db import Base
 
 
@@ -11,9 +13,14 @@ class Dividend(Base):
     description = Column(String(100), unique=False, nullable=True)
     amount = Column(Numeric(12, 2), nullable=False)
     payment_date = Column(DateTime(), nullable=False)
-    portfolio = Column(String(20), unique=False, nullable=True)
+    portfolio_id = Column(Integer(), ForeignKey('portfolio.id'))
     created_on = Column(DateTime(), default=datetime.now())
     updated_on = Column(DateTime(), default=datetime.now(), onupdate=datetime.now)
+
+    portfolio_id = Column(Integer(), ForeignKey('portfolio.id'))
+    portfolio = relationship("Portfolio",
+                             backref=backref('dividend', order_by='Dividend.payment_date', cascade_backrefs=False)
+                             )
 
     def __repr__(self):
         return (f"Dividend {self.id} instrument={self.instrument} sedol={self.sedol} "

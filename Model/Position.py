@@ -1,12 +1,14 @@
 from datetime import datetime
 from sqlalchemy import (Table, Column, Integer, Numeric, String, DateTime, ForeignKey)
+from sqlalchemy.orm import relationship, backref
+
 from .db import Base
+from Utils.TimeUtils import TimeUtils
 
 
 class Position(Base):
     __tablename__ = 'position'
     id = Column(Integer(), primary_key=True)
-    portfolio = Column(String(20), unique=False, nullable=True)
     instrument = Column(String(10), unique=False, nullable=False)
     quantity = Column(Numeric(12, 2))
     avg_price = Column(Numeric(12, 2))
@@ -21,9 +23,13 @@ class Position(Base):
     div_last_year = Column(Numeric(12, 2))
     div_total = Column(Numeric(12, 2))
 
-
     created_on = Column(DateTime(), default=datetime.now())
     updated_on = Column(DateTime(), default=datetime.now(), onupdate=datetime.now)
+
+    portfolio_id = Column(Integer(), ForeignKey('portfolio.id'))
+    portfolio = relationship("Portfolio", backref=backref('position', order_by='Position.instrument'),
+                             cascade_backrefs=False)
+
 
     def __repr__(self):
         return (f"Position {self.id} instrument={self.instrument} "
@@ -34,5 +40,9 @@ class Position(Base):
                 f"created_on={self.created_on} updated_on={self.updated_on}\n")
 
     def add_dividend(self, amount, payment_date):
-        #if last year
-        pass
+        self.div_total += amount
+        if TimeUtils.is_this_year(payment_date):
+            self.div_ytd += amount
+        elif TimeUtils.is_last_year(payment_date):
+            self.div_last_year += amount
+
