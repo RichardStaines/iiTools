@@ -54,7 +54,7 @@ def main(argc, argv):
 
     divRepo.save_from_df(ii_csv.get_dividends(), portfolio, args.reload)
     cashRepo.save_from_df(ii_csv.get_cash(), portfolio, args.reload)
-    cashRepo.save_from_df(ii_csv.get_interest(), portfolio, args.reload)
+    cashRepo.save_from_df(ii_csv.get_interest(), portfolio)
     tradeRepo.save_from_df(ii_csv.get_trades(), portfolio, args.reload)
 
 
