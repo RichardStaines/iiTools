@@ -2,11 +2,12 @@ import sys
 import os
 import argparse
 
+from Repository.CashRepository import CashRepository
 from Utils.iiCSV import IICsv
 from Repository.DBUtils import DBUtil
 from Model.db import *
 from Repository.PortfolioRepository import PortfolioRepository
-
+from Repository.InstrumentRepository import  InstrumentRepository
 
 def process_commandline():
     parser = argparse.ArgumentParser(
@@ -39,6 +40,8 @@ def main(argc, argv):
 
     ii_csv = IICsv(args.filename, debug=True)
 
+    instRepo = InstrumentRepository(session, debug=False)
+    cashRepo = CashRepository(session, debug=False)
     dbutil = DBUtil(session, debug=True)
 
     if args.reload:
@@ -46,12 +49,13 @@ def main(argc, argv):
         dbutil.clear_tables()
 
     print(f"Instruments={ii_csv.get_instruments()}")
+    instRepo.save_from_df(ii_csv.get_instruments(), args.reload)
 
     dbutil.save_divs_from_df(ii_csv.get_dividends(), portfolio)
-    dbutil.save_cash_from_df(ii_csv.get_cash(), portfolio)
-    dbutil.save_cash_from_df(ii_csv.get_interest(), portfolio)
+    cashRepo.save_from_df(ii_csv.get_cash(), portfolio, args.reload)
+    cashRepo.save_from_df(ii_csv.get_interest(), portfolio, args.reload)
     dbutil.save_trades_from_df(ii_csv.get_trades(), portfolio)
-    dbutil.save_instruments_from_df(ii_csv.get_instruments())
+
 
 
 # Press the green button in the gutter to run the script.

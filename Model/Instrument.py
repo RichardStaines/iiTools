@@ -17,3 +17,4 @@ class Instrument(Base):
         return (f"Instrument {self.id} code={self.code} sedol={self.sedol} "
                 f"description={self.description} price_source={self.price_source} "
                 f"created_on={self.created_on} updated_on={self.updated_on}\n")
+

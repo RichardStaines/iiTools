@@ -21,7 +21,6 @@ class IICsv():
         if self.debug:
             print(df.columns)
 
-        # df.columns = [c.replace(' ', '_') for c in df.columns] # remove spaces from column names
         df['Description'] = df.apply(lambda row: 'Div' if 'Cash Distrib' in row.Description else row.Description,
                                      axis=1)
         df['Type'] = df.apply(
