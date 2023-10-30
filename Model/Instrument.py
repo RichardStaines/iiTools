@@ -6,7 +6,7 @@ from .db import Base
 class Instrument(Base):
     __tablename__ = 'instrument'
     id = Column(Integer(), primary_key=True)
-    code = Column(String(10), unique=False, nullable=False)
+    code = Column(String(10), unique=True, nullable=False)
     sedol = Column(String(10), unique=False, nullable=True)
     description = Column(String(100), unique=False, nullable=True)
     price_source = Column(String(20), unique=False, nullable=True)
