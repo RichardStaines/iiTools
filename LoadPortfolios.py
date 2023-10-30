@@ -35,7 +35,8 @@ def main(argc, argv):
     print(f"{app_name} args {argc} Load file: {args.filename}")
 
     df = load_csv(args.filename, debug=False)
-    db = PortfolioRepository(session, debug=True)
+    data_access_layer.connect()
+    db = PortfolioRepository(data_access_layer, debug=True)
     db.save_from_df(df, args.reload)
 
 

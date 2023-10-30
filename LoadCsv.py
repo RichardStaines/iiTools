@@ -10,6 +10,7 @@ from Model.db import *
 from Repository.PortfolioRepository import PortfolioRepository
 from Repository.InstrumentRepository import  InstrumentRepository
 
+
 def process_commandline():
     parser = argparse.ArgumentParser(
         usage="%(prog)s [-reload] -p <portfolio> <II-csv-filename>\n-reload will empty the tables before loading"
@@ -33,7 +34,9 @@ def main(argc, argv):
     args = process_commandline()
     print(f"{app_name} args {argc} Load file: {args.filename} portfolio:{args.portfolio} reload:{args.reload}")
 
-    portfolio_repo = PortfolioRepository(session, debug=True)
+    data_access_layer.connect()
+
+    portfolio_repo = PortfolioRepository(data_access_layer, debug=True)
     portfolio = portfolio_repo.get_portfolio(args.portfolio)
     if portfolio is None:
         print(f"portfolio:{args.portfolio} is not registered")
@@ -41,10 +44,10 @@ def main(argc, argv):
 
     ii_csv = IICsv(args.filename, debug=True)
 
-    instRepo = InstrumentRepository(session, debug=False)
-    cashRepo = CashRepository(session, debug=False)
-    divRepo = DividendRepository(session, debug=False)
-    tradeRepo = TradeRepository(session, debug=False)
+    instRepo = InstrumentRepository(data_access_layer, debug=False)
+    cashRepo = CashRepository(data_access_layer, debug=False)
+    divRepo = DividendRepository(data_access_layer, debug=False)
+    tradeRepo = TradeRepository(data_access_layer, debug=False)
 
     print(f"Instruments={ii_csv.get_instruments()}")
     instRepo.save_from_df(ii_csv.get_instruments(), args.reload)

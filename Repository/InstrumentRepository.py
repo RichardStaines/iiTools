@@ -3,8 +3,8 @@ from Model.db import Instrument
 
 class InstrumentRepository:
 
-    def __init__(self, session, debug=True):
-        self.session = session
+    def __init__(self, data_access_layer, debug=True):
+        self.session = data_access_layer.create_session()
         self.debug = debug
 
     def clear_table(self):
