@@ -9,7 +9,7 @@ split between cash,dividends,trades, separate instruments dynamically.
 
 support several portfolios / trading accounts
 
-this will be I integrated into my django Web app soon.
+this will be integrated into my django Web app soon.
 
 To create an empty DB: Run "alembic upgrade head" from a terminal
 
