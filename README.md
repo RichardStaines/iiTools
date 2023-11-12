@@ -3,17 +3,13 @@ This project is to create tools that I can use to process my trades, dividends a
 to help me monitor my trading ISA better.
 
 Started with a some dividend aggregations.
+ 
+Load from csv into a DB.
+split between cash,dividends,trades, separate instruments dynamically.
 
-Plan: 
-Load into a DB.
-Setup initial positions.
-load in trades. 
-Calc PnL on a trade level and position level.
-See dividend aggregations at position level.
+support several portfolios / trading accounts
 
-Where to get prices from for evaluation? TBD 
-
-That's the plan at least...
+this will be I integrated into my django Web app soon.
 
 To create an empty DB: Run "alembic upgrade head" from a terminal
 
